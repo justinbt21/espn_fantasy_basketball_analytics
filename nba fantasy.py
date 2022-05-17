@@ -4,8 +4,16 @@ Created on Tue May 10 19:16:43 2022
 
 @author: Justin Tran
 """
+   
 
+import sys
+
+sys.path.insert(0, r'C:/Users/JustinTran/Documents/Github/basketball_reference_scraper')
+
+                                                                                                                                                                                                                                                                                                                                                                     
 from espn_api.basketball.league import League
+from basketball_reference_scraper.players import get_game_logs
+from basketball_reference_scraper.teams import get_team_ratings
 import pandas as pd
 import bokeh
 from datetime import datetime
@@ -62,7 +70,7 @@ class teamManager(object):
         self.swid = swid
         self.league = None
         
-        # Initialize functions when teamManager is called
+        # Initialize league immediately when teamManager is called
         self._getLeague()
     
     def _getLeague(self):
@@ -115,7 +123,6 @@ class teamManager(object):
             
             df = pd.concat([df, player])
     
-        
         df.reset_index(inplace=True)
         df.drop(columns='index', inplace=True)
         
@@ -157,18 +164,42 @@ class teamManager(object):
         
         return self.getRosterStats(teamName, f'{year if year else self.year}_last_30')
     
+    def prep_prediction_stats(playerName, gameDate):
+        player_df = get_game_logs(playerName, self.year)
+        team_df = get_team_ratings(season_end_year=self.year)
+        cols = ['MP', 'FG', 'FGA', '3P', 'TRB', 'AST', 'STL', 'BLK', 'PTS', 'PF']
+        
+        stats = df.copy()
+        stats = stats[cols]      
+        
+        stats_dict = {}
+        stats['MP'] = stats['MP'].apply(lambda x: datetime.strptime(x, '%M:%S'))
+        stats['MP'] = stats['MP'].apply(lambda x: round(x.minute + (x.second / 60),2))
+        for c in stats.columns:
+            
+            stats_dict[c] = (stats[c].astype(int).mean(), stats[c].astype(int).std())
+            
+         
+        
+    
+    # def predict_player_stats(playerName: str, oppTeam: str, gameDate: str):
+        
+    
 
     # Get Weekly Games for a team
     def getWeeklyGames(self):
         return None
     
     def tradeEvaluator(self, opp_team_name, players_trading, players_trading_for, graph_data = False):
+        # Get team sats
         team = self.getRosterStats(self.team_name)
         opp_team = self.getRosterStats(opp_team_name)
         
+        #Isolate players in trade
         trading_list = team[team.name.str.lower().isin(lowerCase(players_trading))]
         trading_for_list = opp_team[opp_team.name.str.lower().isin(lowerCase(players_trading_for))]
         
+        #Replace team with new players
         new_team = team[~team.name.str.lower().isin(lowerCase(players_trading))]
         new_team = pd.concat([new_team, trading_for_list]).reset_index(drop=True)
         
@@ -215,7 +246,6 @@ class teamManager(object):
         data = graph_bar.show() if graph_data == True else chart
 
         return data
-    
 
-    
+
     
