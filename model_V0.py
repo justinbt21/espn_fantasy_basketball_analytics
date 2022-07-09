@@ -22,18 +22,14 @@ from xgboost import XGBRegressor
 from xgboost import plot_importance
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import OneHotEncoder
-from matplotlib import pyplot
-import calendar
-
-from sklearn.model_selection import train_test_split
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline, FeatureUnion
+from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
-from sklearn.linear_model import LinearRegression
+from matplotlib import pyplot
+import calendar
+
 import numpy as np
 
 import warnings
@@ -55,7 +51,7 @@ team = league.getRosterStats(team_name)
 team_ratings = get_team_ratings(season_end_year=2022)
 
 df = pd.DataFrame()
-player_list = team['name']
+player_list = team.loc[team['MIN'].astype(float) >= 28.0]['name']
 for player_name in player_list:
     player_games = get_game_logs(player_name, 2022)
     player_games['name'] = player_name
@@ -80,8 +76,12 @@ for player_name in player_list:
     pts_df = pts_df.merge(team_ratings[['TEAM','DRTG/A']], left_on='OPPONENT', right_on='TEAM')
     pts_df.drop(columns='TEAM', inplace=True)
     
-    pts_df.reset_index(drop=True, inplace=True)
+    pts_df
+    
     df = pd.concat([df, pts_df])
+
+df = df[~df['MP_avg'].isna()]
+df.reset_index(drop=True, inplace=True)
 
 cat_attribs = ['HOME/AWAY','DoW']
 df['HOME/AWAY'] = df['HOME/AWAY'].astype('category')
@@ -126,9 +126,9 @@ pipe.fit(train_X, train_y)
 # columns = np.append(cat_columns, numerical)
 
 # Inspect training data before and after
-print("******************** Training data ********************")
-display(train_X)
-display(pd.DataFrame(preprocessor.transform(train_X), columns=numerical))
+# print("******************** Training data ********************")
+# display(train_X)
+# display(pd.DataFrame(preprocessor.transform(train_X), columns=numerical))
 
 # # Inspect test data before and after
 # print("******************** Test data ********************")
@@ -138,3 +138,12 @@ display(pd.DataFrame(preprocessor.transform(train_X), columns=numerical))
 prediction = pipe.predict(test_X)
 
 mean_absolute_error(test_y, prediction)
+
+test_df = pd.merge(test_X, test_y, left_index=True, right_index=True)
+test_df['prediction'] = prediction.tolist()
+test_df = pd.merge(test_df, df[['name']], left_index=True, right_index=True)
+columns = test_df.columns.tolist()[-1:] + test_df.columns.tolist()[:-1]
+test_df = test_df[columns]
+
+
+
