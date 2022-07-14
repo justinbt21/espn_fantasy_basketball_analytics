@@ -8,7 +8,6 @@ Created on Sat May 21 13:35:07 2022
 import sys
 
 sys.path.insert(0, r'C:/Users/JustinTran/Documents/Github/basketball_reference_scraper')
-sys.path.insert(0, r'C:/Users/JustinTran/Documents/Github/basketball_analytics')
 sys.path.insert(0, r'C:/Users/JustinTran/Documents/Github/espn_fantasy_basketball_analytics')
 
 from espn_api.basketball.league import League
@@ -34,13 +33,6 @@ import numpy as np
 
 import warnings
 warnings.filterwarnings('ignore')
-
-league_id = 64009
-year = 2022
-espn_s2='AEB4vvlGxZTkNFuii7Cmx1ZaY1FDSiCgnp%2BSYIccw9%2FCWX%2FrmCw%2FY2IlEvNY%2BBjAi3Uox4ZjxmDGSbq1Ejw7%2F5wYtDVDyC1vd4NqZi%2Bg2py9QQp9OS0SkHvEU9wkUicUTv2b%2BdYvyKA3rEfSsGg4saaNnAIZVU93WKrYbqr27bjiIVKRNRdfZWfJtIv0CjgeogmGNilQ0SWXYrxibHBVUq%2BEakONVzJNEYmmhS5Omd73T8ev1Wrp6ZmrFhI%2FsAxHxWMTazJNwcpaSY%2BqHEU9x6KxHivu67b3wKSQ8JbLH84j%2BA%3D%3D'
-swid='8048D688-6AF3-4640-83ED-4B55EAC50073'
-team_name = 'Lavine La Vida Loca'
-
 
 # Pull player average, variance, opp defensive rating, home/away, lastNgames average, lastNgames variance, DoW, days rest (PTS)
 # Imprvements: Look at player's frequency of shots per area and how the opposing team defends area (opp_FG%)
@@ -69,6 +61,10 @@ for player_name in player_list:
     pts_df['l7_pts_var'] = pts_df['PTS'].rolling(window=8, min_periods=8, closed='left').var()
     pts_df['l7_MP_avg'] = pts_df['MP'].rolling(window=8, min_periods=8, closed='left').mean()
     pts_df['l7_MP_var'] = pts_df['MP'].rolling(window=8, min_periods=8, closed='left').var()
+    pts_df['l14_pts_avg'] = pts_df['PTS'].rolling(window=8, min_periods=14, closed='left').mean()
+    pts_df['l14_pts_var'] = pts_df['PTS'].rolling(window=8, min_periods=14, closed='left').var()
+    pts_df['l14_MP_avg'] = pts_df['MP'].rolling(window=8, min_periods=14, closed='left').mean()
+    pts_df['l14_MP_var'] = pts_df['MP'].rolling(window=8, min_periods=14, closed='left').var()
     pts_df['DoW'] = pts_df['DATE'].apply(lambda x: pd.Timestamp(x).dayofweek)
     pts_df['DoW'] = pts_df['DoW'] = pts_df['DoW'].apply(lambda x: calendar.day_name[x])
     pts_df['days_rest'] = pts_df['DATE'].diff(1).dt.days

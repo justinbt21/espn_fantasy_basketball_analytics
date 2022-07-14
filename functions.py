@@ -172,4 +172,92 @@ def get_team_game_log(team, year, playoffs=False):
             df = df[cols]
     return df
 
-def 
+def get_player_splits(_name, season_end_year, stat_type='PER_GAME', ask_matches=True):
+    name = lookup(_name, ask_matches)
+    suffix = get_player_suffix(name)[:-5]
+    r = get(f'https://www.basketball-reference.com/{suffix}/splits/{season_end_year}')
+    if r.status_code==200:
+        soup = BeautifulSoup(r.content, 'html.parser')
+        table = soup.find('table')
+        if table:
+            df = pd.read_html(str(table))[0]
+            for i in range(1, len(df['Unnamed: 0_level_0','Split'])):
+                if isinstance(df['Unnamed: 0_level_0','Split'][i], float):
+                    df['Unnamed: 0_level_0','Split'][i] = df['Unnamed: 0_level_0','Split'][i-1]
+            df = df[~df['Unnamed: 1_level_0','Value'].str.contains('Total|Value')]
+            
+            headers = df.iloc[:,:2]
+            headers = headers.droplevel(0, axis=1)
+                
+            if stat_type.lower() in ['per_game', 'shooting', 'advanced', 'totals']:
+                if stat_type.lower() == 'per_game':
+                    df = df['Per Game']
+                    df['Split'] = headers['Split']
+                    df['Value'] = headers['Value']
+                    cols = df.columns.tolist()
+                    cols = cols[-2:] + cols[:-2]
+                    df = df[cols]
+                    return df
+                elif stat_type.lower() == 'shooting':
+                    df = df['Shooting']
+                    df['Split'] = headers['Split']
+                    df['Value'] = headers['Value']
+                    cols = df.columns.tolist()
+                    cols = cols[-2:] + cols[:-2]
+                    df = df[cols]
+                    return df
+                
+                elif stat_type.lower() == 'advanced':
+                    df =  df['Advanced']
+                    df['Split'] = headers['Split']
+                    df['Value'] = headers['Value']
+                    cols = df.columns.tolist()
+                    cols = cols[-2:] + cols[:-2]
+                    df = df[cols]
+                    return df
+                elif stat_type.lower() == 'totals':
+                    df = df['Totals']
+                    df['Split'] = headers['Split']
+                    df['Value'] = headers['Value']
+                    cols = df.columns.tolist()
+                    cols = cols[-2:] + cols[:-2]
+                    df = df[cols]
+                    return df
+            else:
+                raise Exception('The "stat_type" you entered does not exist. The following options are: PER_GAME, SHOOTING, ADVANCED, TOTALS')
+
+def get_team_ratings(*, team=[], season_end_year: int):
+
+    # Scrape data from URL
+    r = get(f'https://widgets.sports-reference.com/wg.fcgi?css=1&site=bbr&url=%2Fleagues%2FNBA_{season_end_year}_ratings.html&div=div_ratings')
+    if r.status_code == 200:
+        soup = BeautifulSoup(r.content, 'html.parser')
+        table = soup.find('table')
+        df = pd.read_html(str(table))[0]
+
+        # Clean columns and indexes
+        df = df.droplevel(level=0, axis=1)
+        
+        df.drop(columns=['Rk', 'Conf', 'Div', 'W', 'L', 'W/L%'], inplace=True)
+        upper_cols = list(pd.Series(df.columns).apply(lambda x: x.upper()))
+        df.columns = upper_cols
+
+        df['TEAM'] = df['TEAM'].apply(lambda x: x.upper())
+        df['TEAM'] = df['TEAM'].apply(lambda x: TEAM_TO_TEAM_ABBR[x])
+
+        # Add 'Season' column in and change order of columns
+        df['SEASON'] = f'{season_end_year-1}-{str(season_end_year)[2:]}'
+        cols = df.columns.tolist()
+        cols = cols[0:1] + cols[-1:] + cols[1:-1]
+        df = df[cols]
+
+        # Add the ability to either pass no teams (empty list), one team (str), or multiple teams (list)
+        if len(team) > 0:
+            if isinstance(team, str):
+                list_team = []
+                list_team.append(team)
+                df = df[df['TEAM'].isin(list_team)]
+            else:
+                df = df[df['TEAM'].isin(team)]
+                    
+    return df

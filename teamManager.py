@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, r'C:/Users/JustinTran/Documents/Github/basketball_reference_scraper')
 
-                                                                                                                                                                                                                                                                                                                                                                     
+
 from espn_api.basketball.league import League
 from basketball_reference_scraper.players import get_game_logs, get_player_splits
 from basketball_reference_scraper.teams import get_team_ratings
@@ -21,6 +21,7 @@ from dateutil.relativedelta import relativedelta as tDelta
 import plotly.express as xp
 import numpy as np
 import plotly.io as pio
+from .pvt import credentials
 
 
 # from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
@@ -48,7 +49,8 @@ counting_stats = [ 'MIN'
          , 'TO'
     ]
 
-
+espn_s2 = credentials.espn_s2
+espn_s2 
 class teamManager(object):
     
     pio.renderers.default='browser'
