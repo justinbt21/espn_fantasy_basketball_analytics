@@ -1,0 +1,5 @@
+# ignore ALL files in ANY directory named temp
+pvt/ 
+
+# ignore ALL .log files
+*.log
