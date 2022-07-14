@@ -15,14 +15,9 @@ from espn_api.basketball.league import League
 from basketball_reference_scraper.players import get_game_logs, get_player_splits
 from basketball_reference_scraper.teams import get_team_ratings
 import pandas as pd
-import bokeh
 from datetime import datetime
 from dateutil.relativedelta import relativedelta as tDelta
-import plotly.express as xp
 import numpy as np
-import plotly.io as pio
-from .pvt import credentials
-
 
 # from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 # import plotly.graph_objs as go
