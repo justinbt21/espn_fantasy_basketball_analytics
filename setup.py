@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="espn_fantasy_basketball_analytics",
-    version="0.0.2",
+    version="0.0.3",
     author="Justin Tran",
     author_email="justinbt21@gmail.com",
     license="MIT",
@@ -22,17 +22,6 @@ setuptools.setup(
     ],
     python_requires=">=3.6",
     install_requires=[
-        'beautifulsoup4>=4.8.2',
-        'bs4>=0.0.1',
-        'lxml>=4.6.5',
-        'numpy>=1.21.0',
-        'pandas>=1.3.1',
-        'python-dateutil==2.8.1',
-        'pytz==2019.3',
-        'requests==2.27.1',
-        'six==1.13.0',
-        'soupsieve==1.9.5',
-        'unidecode==1.2.0'
     ],
     extras_require={
         'test': ['unittest'],
@@ -42,7 +31,7 @@ setuptools.setup(
         "sports",
         "data mining",
         "basketball",
-        "basketball reference",
+        "espn fantasy basketball",
         "basketball-reference.com",
         ],
 )
