@@ -17,7 +17,9 @@ from basketball_reference_scraper.teams import get_team_ratings
 import pandas as pd
 from datetime import datetime
 from dateutil.relativedelta import relativedelta as tDelta
+import plotly.express as xp
 import numpy as np
+import plotly.io as pio
 
 # from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 # import plotly.graph_objs as go
@@ -45,8 +47,6 @@ counting_stats = [ 'MIN'
     ]
 
 class teamManager(object):
-    
-    pio.renderers.default='browser'
     
     pd.set_option('display.max_rows', 100)
     pd.set_option('display.max_columns', 20)
