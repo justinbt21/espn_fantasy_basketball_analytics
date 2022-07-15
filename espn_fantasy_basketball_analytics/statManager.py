@@ -8,7 +8,7 @@ Created on Fri May 20 21:43:19 2022
 import json
 from nba_api.stats.endpoints import CommonAllPlayers, CommonTeamYears, ShotChartDetail, PlayerDashPtShotDefend, LeagueDashPtTeamDefend
 from nba_api.stats.library.parameters import Season, DefenseCategory
-import .constants
+from . import constants
 import pandas as pd
 from time import sleep
 

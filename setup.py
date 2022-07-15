@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="espn_fantasy_basketball_analytics",
-    version="0.0.6",
+    version="0.0.8",
     author="Justin Tran",
     author_email="justinbt21@gmail.com",
     license="MIT",
