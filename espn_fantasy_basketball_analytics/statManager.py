@@ -33,9 +33,8 @@ class statmanager(object):
         self.team_def_stats = self.getLeaguePlayerDefStats()
 
     def _getPlayers(is_current=False, persist=True):
-        df = pd.DataFrame(get_players())
-        if is_current:
-            df = df[df['is_active'] == is_current]
+        _json_str = CommonAllPlayers(is_only_current_season=is_current).get_json()
+        df = _api_scrape(_json_str)
 
         return df
     
