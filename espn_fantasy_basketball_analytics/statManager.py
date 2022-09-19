@@ -6,8 +6,9 @@ Created on Fri May 20 21:43:19 2022
 """
 
 import json
-from nba_api.stats.endpoints import CommonAllPlayers, CommonTeamYears, ShotChartDetail, PlayerDashPtShotDefend, LeagueDashPtTeamDefend
+from nba_api.stats.endpoints import CommonAllPlayers, CommonTeamYears, ShotChartDetail, PlayerDashPtShotDefend, LeagueDashPtTeamDefend, PlayerAwards
 from nba_api.stats.library.parameters import Season, DefenseCategory
+from nba_api.stats.static.players import get_players
 from . import constants
 import pandas as pd
 from time import sleep
@@ -31,10 +32,11 @@ class statmanager(object):
         self.team_list = self._getTeams()
         self.team_def_stats = self.getLeaguePlayerDefStats()
 
-    def _getPlayers(self, is_current=1, persist=True):
-        _json_str = CommonAllPlayers(is_only_current_season=is_current).get_json()
-        df = _api_scrape(_json_str)
-        
+    def _getPlayers(is_current=False, persist=True):
+        df = pd.DataFrame(get_players())
+        if is_current:
+            df = df[df['is_active'] == is_current]
+
         return df
     
     def _getTeams(self):
@@ -96,6 +98,11 @@ class statmanager(object):
     def getPlayerDefStatsDetailed(self, player_name, year=Season().default):
         player_id = self.getPlayerID(player_name)
         _json = PlayerDashPtShotDefend(player_id=player_id, team_id=0, season=year).get_json()
+        df = _api_scrape(_json)
+
+    def getPlayerAwards(self, player_name):
+        player_id = self.getPlayerID(player_name)
+        _json = PlayerAwards(player_id=player_id).get_json()
         df = _api_scrape(_json)
         
         return df
