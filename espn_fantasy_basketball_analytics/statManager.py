@@ -32,7 +32,7 @@ class statmanager(object):
         self.team_list = self._getTeams()
         self.team_def_stats = self.getLeaguePlayerDefStats()
 
-    def _getPlayers(is_current=1, persist=True):
+    def _getPlayers(self, is_current=1):
         _json_str = CommonAllPlayers(is_only_current_season=is_current).get_json()
         df = _api_scrape(_json_str)
 
