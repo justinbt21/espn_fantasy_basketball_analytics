@@ -48,14 +48,13 @@ class statmanager(object):
         df = self.player_list
         
         id = df[df['DISPLAY_FIRST_LAST'].str.lower() == player_name.lower()]['PERSON_ID']
-        id = id.to_string(index=False)
         if len(id) == 0:
             static_df = pd.DataFrame(get_players())
             id = static_df[static_df['full_name'].str.lower() == player_name.lower()]['id'].to_string(index=False)
             if len(id) == 0:
                 raise Exception('Player could not be found, please try again')
         
-        return id
+        return id.to_string(index=False)
     
     def getTeamID(self, team_name):
         df = self.team_list
