@@ -50,7 +50,7 @@ class statmanager(object):
         id = df[df['DISPLAY_FIRST_LAST'].str.lower() == player_name.lower()]['PERSON_ID']
         if len(id) == 0:
             static_df = pd.DataFrame(get_players())
-            id = static_df[static_df['full_name'].str.lower() == player_name.lower()]['id'].to_string(index=False)
+            id = static_df[static_df['full_name'].str.lower() == player_name.lower()]['id']
             if len(id) == 0:
                 raise Exception('Player could not be found, please try again')
         
