@@ -1,3 +1,24 @@
+DESC_STATS = ['name'
+         , 'position'
+         , 'lineupSlot'
+         , 'injuryStatus'
+]
+COUNTING_STATS = [ 'MIN'
+         , 'FGM'
+         , 'FGA'
+         , 'FG%'
+         , 'FTM'
+         , 'FTA'
+         , 'FT%'
+         , '3PTM'
+         , 'REB'
+         , 'AST'
+         , 'STL'
+         , 'BLK'
+         , 'PTS'
+         , 'TO'
+    ]
+
 
 def court(shape): 
   court_shapes = []
