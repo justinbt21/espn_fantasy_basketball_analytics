@@ -120,8 +120,9 @@ class teamManager(object):
     def getFreeAgentStats(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
         league = self.league
         playerObjects = league.free_agents(size=size, position=position)
-        
-        return self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}')
+        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}').drop(columns=['lineupSlot'])
+
+        return df
     
     # def getFreeAgentStats_Last7(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
     #

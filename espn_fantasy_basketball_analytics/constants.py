@@ -19,6 +19,9 @@ COUNTING_STATS = [ 'MIN'
          , 'TO'
     ]
 
+ROSTER_COLS = []
+FA_COLS = []
+
 
 def court(shape): 
   court_shapes = []
