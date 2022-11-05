@@ -8,7 +8,7 @@ Created on Tue May 10 19:16:43 2022
 
 
 from espn_api.basketball.league import League
-from .constants import DESC_STATS, COUNTING_STATS
+from .constants import DESC_STATS, COUNTING_STATS, ROSTER_COLS, FA_COLS
 import pandas as pd
 from datetime import datetime
 from dateutil.relativedelta import relativedelta as tDelta
@@ -120,7 +120,9 @@ class teamManager(object):
     def getFreeAgentStats(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
         league = self.league
         playerObjects = league.free_agents(size=size, position=position)
-        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}').drop(columns=['lineupSlot'])
+        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}')\
+            .drop(columns=['lineupSlot'])
+        df.columns = FA_COLS
 
         return df
     
@@ -138,8 +140,10 @@ class teamManager(object):
     
     def getRosterStats(self, teamId, year: str=None) -> pd.DataFrame:
         playerObjects=self.getTeamRosterObjs(teamName)
+        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else self.year}')
+        df.columns = ROSTER_COLS
         
-        return self.getStats(playerObjects=playerObjects, year=f'{year if year else self.year}')
+        return df
     
     def getRosterStats_Last7(self, teamName: str, year: str=None) -> pd.DataFrame:
         

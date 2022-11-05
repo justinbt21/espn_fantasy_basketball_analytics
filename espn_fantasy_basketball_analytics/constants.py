@@ -19,8 +19,45 @@ COUNTING_STATS = [ 'MIN'
          , 'TO'
     ]
 
-ROSTER_COLS = []
-FA_COLS = []
+ROSTER_COLS = [
+    'Name',
+    'Pos',
+    'Slot',
+    'Status',
+    'MIN',
+    'FGM',
+    'FGA',
+    'FG%',
+    'FTM',
+    'FTA',
+    'FT%',
+    '3PTM',
+    'REB',
+    'AST',
+    'STL',
+    'BLK',
+    'PTS',
+    'TO'
+]
+FA_COLS = [
+    'Name',
+    'Pos',
+    'Status',
+    'MIN',
+    'FGM',
+    'FGA',
+    'FG%',
+    'FTM',
+    'FTA',
+    'FT%',
+    '3PTM',
+    'REB',
+    'AST',
+    'STL',
+    'BLK',
+    'PTS',
+    'TO'
+]
 
 
 def court(shape): 
