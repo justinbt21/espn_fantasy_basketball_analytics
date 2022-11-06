@@ -14,9 +14,6 @@ from espn_api.basketball.constant import STAT_ID_MAP, POSITION_MAP, ACTIVITY_MAP
 # from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 # import plotly.graph_objs as go
 
-
-
-
 class teamManager(object):
     
     pd.set_option('display.max_rows', 100)
@@ -28,31 +25,31 @@ class teamManager(object):
         self.year = year
         self.espn_s2 = espn_s2
         self.swid = swid
-        self.league = None
-        self.teams_dict = None
-        self.team_obj = None
+        self.league = League(league_id=self.league_id, year=self.year, espn_s2=self.espn_s2, swid=self.swid)
+        self.teams_dict = {d.team_id:{'name':d.team_name, 'obj': d} for d in self.league.teams}
+        self.team_obj = self.getTeamObj(team_id)
+        self.currMatchPeriod = self.league.currentMatchupPeriod
+        self.currMatchupObj = self.team_obj.schedule[self.currMatchPeriod-1]
         self.position_dict = POSITION_MAP
         self.stat_dict = STATS_MAP
         self.stat_type_dict = STAT_ID_MAP
         self.pro_team_dict = PRO_TEAM_MAP
         self.activity_dict = ACTIVITY_MAP
-        
-        
-        # Initialize league immediately when teamManager is called
-        self._getLeague()
-        self._get_team_dict()
-        self.team_obj = self.getTeamObj(team_id)
+        # self._getLeague()
+        # self._get_team_dict()
+        # self.team_obj = self.getTeamObj(team_id)
+
     
-    def _getLeague(self):
-        self.league = League(league_id=self.league_id, year=self.year, espn_s2=self.espn_s2, swid=self.swid)
-        
-        return self.league
+    # def _getLeague(self):
+    #     self.league = League(league_id=self.league_id, year=self.year, espn_s2=self.espn_s2, swid=self.swid)
+    #
+    #     return self.league
     
-    def _get_team_dict(self):
-        self.teams_dict = {d.team_id:{'name':d.team_name,
-                                      'obj': d} for d in self.league.teams}
-        
-        return self.teams_dict
+    # def _get_team_dict(self):
+    #     self.teams_dict = {d.team_id:{'name':d.team_name,
+    #                                   'obj': d} for d in self.league.teams}
+    #
+    #     return self.teams_dict
 
     # Get Team ID
     def getTeamId(self, teamName: str) -> int:
@@ -135,25 +132,23 @@ class teamManager(object):
     #     return self.getFreeAgentStats(size, position, f'{year if year else self.year}_last_30')
     
     def getRosterStats(self, teamId, year: str=None) -> pd.DataFrame:
-        playerObjects=self.getTeamRosterObjs(teamName)
-        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else self.year}')
+        playerObjects=self.getTeamRosterObjs(teamId)
+        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}')
         df.columns = ROSTER_COLS
         
         return df
     
-    def getRosterStats_Last7(self, teamName: str, year: str=None) -> pd.DataFrame:
-        
-        return self.getRosterStats(teamName, f'{year if year else self.year}_last_7')
-    
-    def getRosterStats_Last15(self, teamName: str, year: str=None) -> pd.DataFrame:
-        
-        return self.getRosterStats(teamName, f'{year if year else self.year}_last_15')
-    
-    def getRosterStats_Last30(self, teamName: str, year: str=None) -> pd.DataFrame:
-        
-        return self.getRosterStats(teamName, f'{year if year else self.year}_last_30')
-    def getCurrentMatchup(teamId):
-        return None
+    # def getRosterStats_Last7(self, teamName: str, year: str=None) -> pd.DataFrame:
+    #
+    #     return self.getRosterStats(teamName, f'{year if year else self.year}_last_7')
+    #
+    # def getRosterStats_Last15(self, teamName: str, year: str=None) -> pd.DataFrame:
+    #
+    #     return self.getRosterStats(teamName, f'{year if year else self.year}_last_15')
+    #
+    # def getRosterStats_Last30(self, teamName: str, year: str=None) -> pd.DataFrame:
+    #
+    #     return self.getRosterStats(teamName, f'{year if year else self.year}_last_30')
     
     # def prep_prediction_stats(playerName, gameDate):
     #     player_df = get_game_logs(playerName, self.year)
