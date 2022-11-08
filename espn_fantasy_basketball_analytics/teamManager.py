@@ -85,7 +85,7 @@ class teamManager(object):
     # Retrieve Stats when passing Player Object(s)
     def getStats(self, playerObjects, year: str=None) -> pd.DataFrame:
         df = pd.DataFrame(columns=DESC_STATS + COUNTING_STATS)
-        year_str = f'{year if year else 0}'
+        year_str = f'{year if year else 0}' # need to change later cause it resultset for current season stats is not available in API
         
         for i in range(0, len(playerObjects)):
             player = pd.DataFrame(index = [0])
@@ -97,7 +97,10 @@ class teamManager(object):
             # To add a row of stats, update counting_stats list
             if 'avg' in playerObjects[i].stats[year_str]:
                 for j in COUNTING_STATS:
-                    player[f'{j}'] = round(playerObjects[i].stats[year_str]['avg'][f'{j}'], 1)
+                    if j not in ['FG%','FT%']:
+                        player[f'{j}'] = round(playerObjects[i].stats[year_str]['avg'][f'{j}'], 1)
+                    else:
+                        player[f'{j}'] = round(playerObjects[i].stats[year_str]['avg'][f'{j}'], 3)
             else:
                 for j in COUNTING_STATS:
                     player[f'{j}'] = 0.0
@@ -113,7 +116,7 @@ class teamManager(object):
     def getFreeAgentStats(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
         league = self.league
         playerObjects = league.free_agents(size=size, position=position)
-        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}')\
+        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}')\ # need to change later cause it resultset for current season stats is not available in API
             .drop(columns=['lineupSlot'])
         df.columns = FA_COLS
 
@@ -133,7 +136,7 @@ class teamManager(object):
     
     def getRosterStats(self, teamId, year: str=None) -> pd.DataFrame:
         playerObjects=self.getTeamRosterObjs(teamId)
-        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}')
+        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}') # need to change later cause it resultset for current season stats is not available in API
         df.columns = ROSTER_COLS
         
         return df
@@ -173,63 +176,7 @@ class teamManager(object):
     # Get Weekly Games for a team
     def getWeeklyGames(self):
         return None
-    
-    def tradeEvaluator(self, opp_team_name, players_trading, players_trading_for, graph_data = False):
-        # Get team sats
-        team = self.getRosterStats(self.team_name)
-        opp_team = self.getRosterStats(opp_team_name)
-        
-        #Isolate players in trade
-        trading_list = team[team.name.str.lower().isin(lowerCase(players_trading))]
-        trading_for_list = opp_team[opp_team.name.str.lower().isin(lowerCase(players_trading_for))]
-        
-        #Replace team with new players
-        new_team = team[~team.name.str.lower().isin(lowerCase(players_trading))]
-        new_team = pd.concat([new_team, trading_for_list]).reset_index(drop=True)
-        
-        new_opp_team = opp_team[~opp_team.name.str.lower().isin(lowerCase(players_trading))]
-        new_opp_team = pd.concat([opp_team, trading_list]).reset_index(drop=True)
-        
-        ## Generate current team stats
-        drop_cols1 = ['position', 'lineupSlot', 'injuryStatus']
-        
-        current_stats = team.drop(columns=drop_cols1)
-        current_stats = current_stats.groupby('name').mean()
-        current_total_stats = current_stats.sum()
-        current_total_stats['FG%'] = current_total_stats['FGM']/current_total_stats['FGA']
-        current_total_stats['FT%'] = current_total_stats['FTM']/current_total_stats['FTA']
-        
-        new_stats = new_team.drop(columns=drop_cols1)
-        new_stats = new_stats.groupby('name').mean()
-        new_total_stats = new_stats.sum()
-        new_total_stats['FG%'] = new_total_stats['FGM']/new_total_stats['FGA']
-        new_total_stats['FT%'] = new_total_stats['FTM']/new_total_stats['FTA']
 
-        drop_cols2 = ['FGM', 'FGA', 'FTM', 'FTA']
-        current_total_stats = current_total_stats.drop(columns=drop_cols2)
-        new_total_stats = new_total_stats.drop(columns=drop_cols2)
-        
-        trade_eval_stats = (new_total_stats - current_total_stats).round(3)
-        pct_change_stats = (100.00 * (trade_eval_stats / current_total_stats)).round(2)
-        
-        df1 = pd.DataFrame(trade_eval_stats, columns = ['Weekly Change'])
-        df2 = pd.DataFrame(pct_change_stats, columns = ['Percent Change'])
-        
-        chart = df1.merge(df2, 'inner', left_index = True, right_index = True)
-        graph_bar = xp.bar(pct_change_stats,
-                x = list(pd.DataFrame(pct_change_stats).reset_index()['index'])
-                , y = list(pct_change_stats.round(3))
-                , title = 'Trade Evaluator (in %)'
-                , labels = {
-                            'x': 'Fantasy Category'        
-                            , 'y': '% Change'
-                        }
-                
-            )
-       
-        data = graph_bar.show() if graph_data == True else chart
-
-        return data
 
 
     
