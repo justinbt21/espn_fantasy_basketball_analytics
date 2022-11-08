@@ -6,7 +6,7 @@ Created on Tue May 10 19:16:43 2022
 """
 
 from espn_api.basketball.league import League
-from .constants import DESC_STATS, COUNTING_STATS, ROSTER_COLS, FA_COLS
+from espn_fantasy_basketball_analytics.constants import DESC_STATS, COUNTING_STATS, ROSTER_COLS, FA_COLS
 import pandas as pd
 import plotly.express as xp
 from espn_api.basketball.constant import STAT_ID_MAP, POSITION_MAP, ACTIVITY_MAP, PRO_TEAM_MAP, STATS_MAP
@@ -116,8 +116,8 @@ class teamManager(object):
     def getFreeAgentStats(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
         league = self.league
         playerObjects = league.free_agents(size=size, position=position)
-        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}')\ # need to change later cause it resultset for current season stats is not available in API
-            .drop(columns=['lineupSlot'])
+        # need to change later cause it resultset for current season stats is not available in API
+        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}').drop(columns=['lineupSlot'])
         df.columns = FA_COLS
 
         return df
@@ -136,6 +136,7 @@ class teamManager(object):
     
     def getRosterStats(self, teamId, year: str=None) -> pd.DataFrame:
         playerObjects=self.getTeamRosterObjs(teamId)
+        # need to change later cause it resultset for current season stats is not available in API
         df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}') # need to change later cause it resultset for current season stats is not available in API
         df.columns = ROSTER_COLS
         
