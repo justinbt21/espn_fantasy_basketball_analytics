@@ -27,7 +27,7 @@ class teamManager(object):
         self.swid = swid
         self.league = League(league_id=self.league_id, year=self.year, espn_s2=self.espn_s2, swid=self.swid)
         self.teams_dict = {d.team_id:{'name':d.team_name, 'obj': d} for d in self.league.teams}
-        self.team_obj = self.getTeamObj(team_id)
+        self.team_obj = self.league.get_team_data(3)
         self.currMatchPeriod = self.league.currentMatchupPeriod
         self.currMatchupObj = self.team_obj.schedule[self.currMatchPeriod-1]
         self.position_dict = POSITION_MAP
@@ -35,21 +35,6 @@ class teamManager(object):
         self.stat_type_dict = STAT_ID_MAP
         self.pro_team_dict = PRO_TEAM_MAP
         self.activity_dict = ACTIVITY_MAP
-        # self._getLeague()
-        # self._get_team_dict()
-        # self.team_obj = self.getTeamObj(team_id)
-
-    
-    # def _getLeague(self):
-    #     self.league = League(league_id=self.league_id, year=self.year, espn_s2=self.espn_s2, swid=self.swid)
-    #
-    #     return self.league
-    
-    # def _get_team_dict(self):
-    #     self.teams_dict = {d.team_id:{'name':d.team_name,
-    #                                   'obj': d} for d in self.league.teams}
-    #
-    #     return self.teams_dict
 
     # Get Team ID
     def getTeamId(self, teamName: str) -> int:
@@ -83,9 +68,11 @@ class teamManager(object):
         return objs
     
     # Retrieve Stats when passing Player Object(s)
-    def getStats(self, playerObjects, year: str=None) -> pd.DataFrame:
+    def getStats(self, playerObjects, year: int=None, last_d: int=None) -> pd.DataFrame:
+
+        lookback = '_total' if last_d is None else f'_last_{last_d}'
+        year_str = f'{year if year else self.year}{lookback}'
         df = pd.DataFrame(columns=DESC_STATS + COUNTING_STATS)
-        year_str = f'{year if year else 0}' # need to change later cause it resultset for current season stats is not available in API
         
         for i in range(0, len(playerObjects)):
             player = pd.DataFrame(index = [0])
@@ -113,47 +100,23 @@ class teamManager(object):
         return df
     
     # Leverage getStats to retrieve Stats for owned/FA players
-    def getFreeAgentStats(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
+    def getFreeAgentStats(self, size: int=100, position: str=None, year: int=None, last_d: int=None) -> pd.DataFrame:
         league = self.league
         playerObjects = league.free_agents(size=size, position=position)
         # need to change later cause it resultset for current season stats is not available in API
-        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}').drop(columns=['lineupSlot'])
+        df = self.getStats(playerObjects=playerObjects, year=year if year else self.year, last_d=last_d).drop(columns=['lineupSlot'])
         df.columns = FA_COLS
 
         return df
     
-    # def getFreeAgentStats_Last7(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
-    #
-    #     return self.getFreeAgentStats(size, position, f'{year if year else self.year}_last_7')
-    #
-    # def getFreeAgentStats_Last15(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
-    #
-    #     return self.getFreeAgentStats(size, position, f'{year if year else self.year}_last_15')
-    #
-    # def getFreeAgentStats_Last30(self, size: int=100, position: str=None, year: str=None) -> pd.DataFrame:
-    #
-    #     return self.getFreeAgentStats(size, position, f'{year if year else self.year}_last_30')
-    
-    def getRosterStats(self, teamId, year: str=None) -> pd.DataFrame:
+    def getRosterStats(self, teamId, year: int=None, last_d: int=None) -> pd.DataFrame:
         playerObjects=self.getTeamRosterObjs(teamId)
         # need to change later cause it resultset for current season stats is not available in API
-        df = self.getStats(playerObjects=playerObjects, year=f'{year if year else 0}') # need to change later cause it resultset for current season stats is not available in API
+        df = self.getStats(playerObjects=playerObjects, year=year if year else self.year, last_d=last_d)
         df.columns = ROSTER_COLS
         
         return df
-    
-    # def getRosterStats_Last7(self, teamName: str, year: str=None) -> pd.DataFrame:
-    #
-    #     return self.getRosterStats(teamName, f'{year if year else self.year}_last_7')
-    #
-    # def getRosterStats_Last15(self, teamName: str, year: str=None) -> pd.DataFrame:
-    #
-    #     return self.getRosterStats(teamName, f'{year if year else self.year}_last_15')
-    #
-    # def getRosterStats_Last30(self, teamName: str, year: str=None) -> pd.DataFrame:
-    #
-    #     return self.getRosterStats(teamName, f'{year if year else self.year}_last_30')
-    
+
     # def prep_prediction_stats(playerName, gameDate):
     #     player_df = get_game_logs(playerName, self.year)
     #     team_df = get_team_ratings(season_end_year=self.year)
